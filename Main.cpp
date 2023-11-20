@@ -131,6 +131,8 @@ public:
 };
 
 void Main() {
+	Window::SetTitle(U"スイカゲーム | 移動: [A / D] 落とす: [Space]");
+
 	Scene::SetBackground(Palette::Beige);
 
 	Font font{ FontMethod::MSDF, 30, Typeface::Bold };
@@ -169,8 +171,8 @@ void Main() {
 				grabWait = 0;
 			};
 
-			if (KeyRight.pressed()) grabPos.x += grabSpeed * delta;
-			if (KeyLeft.pressed())  grabPos.x -= grabSpeed * delta;
+			if (KeyLeft.pressed()  || KeyA.pressed()) grabPos.x -= grabSpeed * delta;
+			if (KeyRight.pressed() || KeyD.pressed()) grabPos.x += grabSpeed * delta;
 
 			grabPos.x = Clamp(grabPos.x, 250.0, 550.0);
 
