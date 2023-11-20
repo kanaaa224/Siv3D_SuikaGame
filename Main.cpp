@@ -267,7 +267,7 @@ void Main() {
 		}
 		else {
 			// リトライ
-			if (KeyEnter.down()) {
+			if (KeySpace.down()) {
 				circles.clear();
 
 				grabFruit.reset();
@@ -301,15 +301,15 @@ void Main() {
 		if (grabFruit) grabFruit->draw();
 		if (nextFruit) nextFruit->draw();
 
-		font(U"スコア:", score).draw(30, 40, 100);
+		font(U"スコア: ", score).draw(30, 40, 100);
 
 		font(U"ネクスト").drawAt(30, nextPos.x, nextPos.y - 100);
 
 		if (gameOver) {
-			Scene::Rect().draw(ColorF(0, 0.5));
+			Scene::Rect().draw(ColorF(0, 0.75));
 
-			font(U"スコア:",         score).drawAt(60, 400, 300);
-			font(U"Enterでリトライ", score).drawAt(40, 400, 500);
+			font(U"スコア: ",     score).drawAt(60, 400, 300);
+			font(U"Spaceキーでリトライ").drawAt(20, 400, 340);
 		};
 
 		font(U"© 2023 kanaaa224.").drawAt(12, 400, 585, Palette::Black);
