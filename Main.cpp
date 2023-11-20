@@ -131,7 +131,7 @@ public:
 };
 
 void Main() {
-	Window::SetTitle(U"スイカゲーム | 移動: [A / D] 落とす: [Space]");
+	Window::SetTitle(U"スイカゲームみたいなやつ | 移動: [A / D] 落とす: [Space]");
 
 	Scene::SetBackground(Palette::Beige);
 
@@ -233,7 +233,7 @@ void Main() {
 						};
 					};
 
-					// Circle と wall の衝突
+					// Circle と Wall の衝突
 					for (auto& pCircle : circles) {
 						for (auto& wall : walls) {
 							Vec2 subV = pCircle->pos - wall.closest(pCircle->pos);
@@ -262,7 +262,7 @@ void Main() {
 			};
 
 			for (auto& o : circles) {
-				if (o->fallen() and o->pos.y - o->r < 80 or o->pos.y>800) gameOver = true;
+				if (o->fallen() and o->pos.y - o->r < 80 or o->pos.y > 800) gameOver = true;
 			};
 		}
 		else {
