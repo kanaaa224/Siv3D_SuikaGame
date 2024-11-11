@@ -12,39 +12,39 @@ struct PhysicsCircle {
 	PhysicsCircle() = default;
 
 	PhysicsCircle(const Vec2& center, double radius) {
-		pos = center;
-		r = radius;
-		v = {};
+		pos   = center;
+		r     = radius;
+		v     = {};
 		theta = 0;
 		omega = 0;
-		M = 1;
-		I = 0.5 * M * r * r;
-	};
+		M     = 1;
+		I     = 0.5 * M * r * r;
+	}
 
 	Circle circle() const {
 		return Circle{ pos, r };
-	};
+	}
 
 	// 重心を基準とした相対座標から力積を加える
 	void addImpulseLocal(const Vec2& impulse, const Vec2& addLocalPos) {
 		v     += impulse / M;
 		omega += addLocalPos.cross(impulse) / I;
-	};
+	}
 
 	// 絶対座標から力積を加える
 	void addImpulse(const Vec2& impulse, const Vec2& addPos) {
 		addImpulseLocal(impulse, addPos - pos);
-	};
+	}
 
 	void update(double delta) {
 		pos   += v     * delta;
 		theta += omega * delta;
-	};
+	}
 
 	void draw(const ColorF& color = Palette::White) {
 		circle().draw();
 		Line{ pos, Arg::direction = Circular(r, theta).toVec2() }.draw(Palette::Black);
-	};
+	}
 };
 
 Color fruitColor(int32 n) {
@@ -84,12 +84,12 @@ Color fruitColor(int32 n) {
 
 	default:
 		return Palette::White;
-	};
-};
+	}
+}
 
 double fruitR(int32 n) {
 	return pow(1.2, n) * 12;
-};
+}
 
 class Fruit : public PhysicsCircle {
 	int32 m_num;
@@ -102,32 +102,32 @@ public:
 
 	Fruit(const Vec2& pos, int32 n) : PhysicsCircle({ pos, fruitR(n) }) {
 		m_num = n;
-	};
+	}
 
 	int32 num()const {
 		return m_num;
-	};
+	}
 
 	bool dead() const {
 		return m_dead;
-	};
+	}
 
 	void beDead() {
 		m_dead = true;
-	};
+	}
 
 	bool fallen()const {
 		return m_fallen;
-	};
+	}
 
 	void beFallen() {
 		m_fallen = true;
-	};
+	}
 
 	void draw() const {
 		Color c = fruitColor(m_num);
 		circle().draw(c).drawFrame(2, HSV(c).setV(0.7));
-	};
+	}
 };
 
 void Main() {
@@ -135,12 +135,12 @@ void Main() {
 
 	Scene::SetBackground(Palette::Beige);
 
-	Font font{ FontMethod::MSDF, 30, Typeface::Bold };
+	Font font { FontMethod::MSDF, 30, Typeface::Bold };
 
 	Array<std::unique_ptr<Fruit>> circles;
 	Array<Line> walls;
 
-	Rect box{ 250, 120, 300, 380 };
+	Rect box { 250, 120, 300, 380 };
 	walls.emplace_back(box.bl(), box.br());
 	walls.emplace_back(box.bl(), box.tl());
 	walls.emplace_back(box.br(), box.tr());
@@ -151,7 +151,7 @@ void Main() {
 
 	Vec2 grabPos = { 400, 80 };
 	constexpr double grabSpeed = 150;
-	constexpr Vec2 nextPos{ 675, 200 };
+	constexpr Vec2 nextPos { 675, 200 };
 	std::unique_ptr<Fruit> nextFruit = std::make_unique<Fruit>(nextPos, Random(1, 5));
 	std::unique_ptr<Fruit> grabFruit;
 	double grabWait = 0.5;
@@ -162,16 +162,15 @@ void Main() {
 	int32 score = 0;
 
 	while (System::Update()) {
-
 		double delta = Scene::DeltaTime();
 
 		if (not gameOver) {
 			if (KeySpace.down() and grabFruit) {
 				circles.emplace_back(std::move(grabFruit));
 				grabWait = 0;
-			};
+			}
 
-			if (KeyLeft.pressed()  || KeyA.pressed()) grabPos.x -= grabSpeed * delta;
+			if (KeyLeft .pressed() || KeyA.pressed()) grabPos.x -= grabSpeed * delta;
 			if (KeyRight.pressed() || KeyD.pressed()) grabPos.x += grabSpeed * delta;
 
 			grabPos.x = Clamp(grabPos.x, 250.0, 550.0);
@@ -185,15 +184,15 @@ void Main() {
 					grabFruit = std::move(nextFruit);
 					grabFruit->pos = grabPos;
 					nextFruit = std::make_unique<Fruit>(nextPos, Random(1, 5));
-				};
+				}
 				grabWait += delta;
-			};
+			}
 
 			for (accumulatorSec += Scene::DeltaTime(); stepSec <= accumulatorSec; accumulatorSec -= stepSec) {
 				for (auto& o : circles) {
 					o->update(stepSec);
 					o->v.y += 9.8; // 重力
-				};
+				}
 
 				for (auto& i : step(solveNum)) {
 					// Circle と Circle の衝突
@@ -210,7 +209,6 @@ void Main() {
 							pc1->pos += solveV;
 							pc2->pos -= solveV;
 
-							// スイカゲームの処理
 							pc1->beFallen();
 							pc2->beFallen();
 
@@ -219,8 +217,7 @@ void Main() {
 								pc2->beDead();
 								if (pc1->num() <= 10) addFruit = std::make_unique<Fruit>(pc1->pos - nv * pc1->r, pc1->num() + 1);
 								score += pc1->num() * (pc1->num() + 1) / 2;
-							};
-
+							}
 
 							double dotV = (pc2->v - pc1->v).dot(nv);
 							if (dotV < 0) continue;
@@ -230,8 +227,8 @@ void Main() {
 							Vec2 impulse = (nv + fDir * 0.5) * Min(dotV, 50.0) * pc1->M * pc2->M / (pc1->M + pc2->M);
 							pc1->addImpulseLocal(impulse, -nv * pc1->r);
 							pc2->addImpulseLocal(-impulse, nv * pc2->r); // 反作用
-						};
-					};
+						}
+					}
 
 					// Circle と Wall の衝突
 					for (auto& pCircle : circles) {
@@ -253,17 +250,17 @@ void Main() {
 							Vec2 tan = nv.rotated90();
 							Vec2 fDir = -Sign(pCircle->v.dot(tan) - pCircle->r * pCircle->omega) * tan; // 摩擦の方向ベクトル
 							pCircle->addImpulseLocal((nv + fDir * 0.5) * Min(dotV, 50.0) * pCircle->M, -nv * pCircle->r); // 摩擦＋垂直効力
-						};
-					};
+						}
+					}
 
 					circles.remove_if([](const auto& o) { return o->dead(); });
 					if (addFruit) circles.emplace_back(std::move(addFruit));
-				};
-			};
+				}
+			}
 
 			for (auto& o : circles) {
 				if (o->fallen() and o->pos.y - o->r < 80 or o->pos.y > 800) gameOver = true;
-			};
+			}
 		}
 		else {
 			// リトライ
@@ -278,8 +275,8 @@ void Main() {
 
 				gameOver = false;
 				score = 0;
-			};
-		};
+			}
+		}
 
 		////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -290,11 +287,11 @@ void Main() {
 
 		for (auto& o : circles) {
 			o->draw();
-		};
+		}
 
 		for (auto& o : walls) {
 			o.draw(3, Palette::Brown);
-		};
+		}
 
 		Circle{ grabPos, 10 }.draw();
 
@@ -310,8 +307,8 @@ void Main() {
 
 			font(U"スコア: ",     score).drawAt(60, 400, 300);
 			font(U"Spaceキーでリトライ").drawAt(20, 400, 340);
-		};
+		}
 
 		font(U"© 2023 kanaaa224.").drawAt(12, 400, 585, Palette::Black);
-	};
-};
+	}
+}
