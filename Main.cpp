@@ -305,7 +305,7 @@ void Main() {
 		if (gameOver) {
 			Scene::Rect().draw(ColorF(0, 0.75));
 
-			font(U"スコア: ",     score).drawAt(60, 400, 300);
+			font(U"スコア: ", score).drawAt(60, 400, 300);
 			font(U"Spaceキーでリトライ").drawAt(20, 400, 340);
 		}
 
